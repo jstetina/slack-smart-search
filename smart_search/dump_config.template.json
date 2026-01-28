@@ -1,0 +1,19 @@
+{
+  "public_channels": [
+    "general",
+    "random",
+    "C12345678"
+  ],
+  "private_channels": [
+    "my-private-channel",
+    "D12345678"
+  ],
+  "start_timestamp": "2024-01-01",
+  "public_db": "./db/slack_public.db",
+  "private_db": "./db/slack_private.db",
+  "collection_name": "slack_messages",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "workspace_url": "https://your-workspace.slack.com",
+  "milvus_token": "",
+  "request_delay": 1.0
+}
