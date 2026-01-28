@@ -51,7 +51,7 @@ TOP_K = int(os.environ.get("TOP_K", "10"))
 # Initialize MCP server
 mcp = FastMCP(
     "smart_search",
-    settings={"host": "127.0.0.1" if MCP_TRANSPORT == "stdio" else "0.0.0.0"}
+    host="127.0.0.1" if MCP_TRANSPORT == "stdio" else "0.0.0.0"
 )
 
 # Global state for lazy initialization
