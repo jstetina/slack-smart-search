@@ -1,0 +1,10 @@
+uv.lock
+*.env
+__pycache__/
+*.pyc
+
+# Runtime/generated files
+dump_progress.json
+dump_config.json
+db/
+raw_responses/
