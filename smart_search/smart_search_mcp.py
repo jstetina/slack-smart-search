@@ -14,7 +14,7 @@ import logging
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
 # Suppress verbose logging and warnings before imports
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -134,7 +134,23 @@ def format_result(result: dict) -> dict:
     }
 
 
-@mcp.tool()
+@mcp.tool(
+    description="""
+Deep semantic nearest-neighbor search over historical Slack messages.
+Use this when exact keyword matching fails or is impractical. Finds messages
+by meaning rather than literal text - ideal for describing problems in natural
+language, discovering prior RHOAI discussions, finding answers when you don't
+know the exact terminology, or locating past troubleshooting threads.
+
+Parameters:
+- query: Natural language description of what you're looking for
+- top_k: (optional) Number of results to return, default 10
+- search_scope: (optional) "public", "private", or "all" databases, default "public"
+- user: (optional) Filter by user ID or username (partial match)
+- start_date: (optional) Filter messages after this date (YYYY-MM-DD)
+- end_date: (optional) Filter messages before this date (YYYY-MM-DD)
+"""
+)
 async def smart_search(
     query: str,
     top_k: int = TOP_K,
