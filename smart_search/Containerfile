@@ -9,14 +9,16 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application
 COPY smart_search_mcp.py ./
 
-# Database mount point
-VOLUME /data/db
+# Bundle config and databases
+COPY dump_config.json ./
+COPY db/ ./db/
 
-# Environment variables (can be overridden)
+# Environment variables
 ENV MCP_TRANSPORT=stdio
-ENV DB_PATH=/data/db
+ENV DB_PATH=/app/db
 ENV COLLECTION_NAME=slack_messages
 ENV EMBEDDING_MODEL=all-MiniLM-L6-v2
 ENV WORKSPACE_URL=https://redhat-internal.slack.com

@@ -18,7 +18,7 @@ rebuild:
 	podman build --no-cache -t $(IMAGE_NAME) -f Containerfile .
 
 run:
-	podman run -it --rm -v $(PWD)/db:/data/db:ro $(IMAGE_NAME)
+	podman run -it --rm $(IMAGE_NAME)
 
 nuke-dbs:
 	@echo "WARNING: This will delete all database files!"
