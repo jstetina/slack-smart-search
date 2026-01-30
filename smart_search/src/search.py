@@ -24,6 +24,14 @@ logging.getLogger("sentence_transformers").setLevel(logging.ERROR)
 logging.getLogger("transformers").setLevel(logging.ERROR)
 logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
+# Resolve project root and chdir so scripts work from any cwd; config paths are under config/
+_src_dir = Path(__file__).resolve().parent
+_project_root = _src_dir.parent
+os.chdir(_project_root)
+if str(_src_dir) not in sys.path:
+    sys.path.insert(0, str(_src_dir))
+
+from config import DEFAULT_CONFIG_PATH
 from pymilvus import MilvusClient
 
 # Suppress HF warning during sentence_transformers import
@@ -36,7 +44,7 @@ finally:
     sys.stderr = _old_stderr
 
 # Configuration
-CONFIG_PATH = Path(__file__).parent / "dump_config.json"
+CONFIG_PATH = DEFAULT_CONFIG_PATH
 DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 TOP_K = 10
 

@@ -9,11 +9,11 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
-COPY smart_search_mcp.py ./
+# Copy application (MCP server lives in src/)
+COPY src/smart_search_mcp.py ./
 
-# Bundle config and databases
-COPY dump_config.json ./
+# Bundle config dir and databases
+COPY config/ ./config/
 COPY db/ ./db/
 
 # Fix permissions for non-root user

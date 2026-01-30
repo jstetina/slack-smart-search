@@ -155,71 +155,71 @@ async def smart_search(
     query: str,
     top_k: int = TOP_K,
     search_scope: Literal["public", "private", "all"] = "public"
-) -> list[dict]:
+) -> dict:
     """
     Semantic search across Slack messages.
-    
-    Args:
-        query: The search query (natural language)
-        top_k: Number of results to return (default 10)
-        search_scope: Which databases to search - "public", "private", or "all"
-    
-    Returns:
-        List of matching messages with text, user, channel, timestamp, and URL
+    Returns a dict with "message" (always set) and "results" (list) so the client always has visible content.
     """
-    model = get_model()
-    if model is None:
-        return [{"error": "Failed to load embedding model"}]
-    
-    # Generate embedding for query
-    query_vector = model.encode(query, show_progress_bar=False).tolist()
-    
-    results = []
-    search_public = search_scope in ("public", "all")
-    search_private = search_scope in ("private", "all")
-    
-    # Search public database
-    if search_public:
-        client = get_public_client()
-        if client:
+    try:
+        search_public = search_scope in ("public", "all")
+        search_private = search_scope in ("private", "all")
+        public_client = get_public_client() if search_public else None
+        private_client = get_private_client() if search_private else None
+
+        if not public_client and not private_client:
+            return {
+                "message": "No search databases available. Mount Slack DBs at DB_PATH (e.g. /app/db with slack_public.db and/or slack_private.db) or run 'make dump' to index messages.",
+                "results": [],
+            }
+
+        model = get_model()
+        if model is None:
+            return {"message": "Failed to load embedding model.", "results": []}
+
+        query_vector = model.encode(query, show_progress_bar=False).tolist()
+        results = []
+
+        if public_client:
             try:
-                public_results = client.search(
+                public_results = public_client.search(
                     collection_name=COLLECTION_NAME,
                     data=[query_vector],
                     limit=top_k,
                     output_fields=["text", "user", "user_name", "ts", "channel_id"],
                 )
                 for hit in public_results[0]:
-                    hit["entity"]["distance"] = hit["distance"]
-                    hit["entity"]["source"] = "public"
-                    results.append(hit["entity"])
+                    entity = hit.get("entity", hit)
+                    entity["distance"] = hit.get("distance", 0)
+                    entity["source"] = "public"
+                    results.append(entity)
             except Exception as e:
                 print(f"[!] Public search error: {e}", file=sys.stderr)
-    
-    # Search private database
-    if search_private:
-        client = get_private_client()
-        if client:
+
+        if private_client:
             try:
-                private_results = client.search(
+                private_results = private_client.search(
                     collection_name=COLLECTION_NAME,
                     data=[query_vector],
                     limit=top_k,
                     output_fields=["text", "user", "user_name", "ts", "channel_id"],
                 )
                 for hit in private_results[0]:
-                    hit["entity"]["distance"] = hit["distance"]
-                    hit["entity"]["source"] = "private"
-                    results.append(hit["entity"])
+                    entity = hit.get("entity", hit)
+                    entity["distance"] = hit.get("distance", 0)
+                    entity["source"] = "private"
+                    results.append(entity)
             except Exception as e:
                 print(f"[!] Private search error: {e}", file=sys.stderr)
-    
-    # Sort by distance (lower is better) and limit
-    results.sort(key=lambda x: x.get("distance", 999))
-    results = results[:top_k]
-    
-    # Format results
-    return [format_result(r) for r in results]
+
+        results.sort(key=lambda x: x.get("distance", 999))
+        results = results[:top_k]
+        formatted = [format_result(r) for r in results]
+        return {
+            "message": f"Found {len(formatted)} result(s) for \"{query[:50]}{'...' if len(query) > 50 else ''}\".",
+            "results": formatted,
+        }
+    except Exception as e:
+        return {"message": f"Search failed: {e}", "results": []}
 
 
 @mcp.tool()

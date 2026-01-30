@@ -6,5 +6,7 @@ __pycache__/
 # Runtime/generated files
 dump_progress.json
 dump_config.json
+config/dump_config.json
+config/dump_progress.json
 db/
 raw_responses/

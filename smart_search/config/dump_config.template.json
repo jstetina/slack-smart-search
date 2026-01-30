@@ -1,12 +1,11 @@
 {
   "public_channels": [
-    "general",
-    "random",
-    "C12345678"
+    "C12345678",
+    "C87654321"
   ],
   "private_channels": [
-    "my-private-channel",
-    "D12345678"
+    "D12345678",
+    "G12345678"
   ],
   "start_timestamp": "2024-01-01",
   "public_db": "./db/slack_public.db",
